@@ -1,0 +1,73 @@
+note:onces chairman loging portel show all 3 colleges 
+only chaiman is login showing all dashboard  all 3 cooleges and at active attendance 
+rmening person don`t show dashboard
+
+Role based access: Chairman (full read), HODs (dept-limited), staff (limited).
+this is select all colleges wise
+(i) all 3 colleges total student Present show one dashboard
+(ii) all 3 colleges total student Absent show one dashboard
+(iii) all 3 colleges total faculty and Staff  present show one dashboard
+(iv) all 3 colleges total faculty and Staff Absent show one dashboard
+(v) all 3 colleges total student pass percentage dashboard 
+same select singlewise  colleges wise
+(i) colleges wise  colleges total student present show one dashboard
+(ii) colleges wise  colleges total student Absent show one dashboard
+(iii colleges wise  colleges total faculty and Staff  present show one dashboard
+(iv)  colleges wise  colleges total faculty and Staff  Absent show one dashboard
+(v)  colleges wise   colleges total student pass percentage dashboard
+
+I am an Engineering College chairman. I need an AI agent how to create
+1. I have 3 engineering colleges (i). Bgiig institute of engineering and technology  (ii).brilliant institute of engineering and technology   (iii).Kasireddy Narayanreddy College of Engineering and Research
+2. Every college 
+Undergraduate B.Tech courses
+KNRCER offers various specializations for its four-year B.Tech program, with admissions generally based on the TS EAMCET entrance exam. 
+Computer Science and Engineering (CSE)-admin number 
+CSE202001 TO  CSE202060  (first year)
+EXAMPLE: CSE202101 TO  CSE202160  (send  yaear)
+EXAMPLE: CSE202201 TO  CSE202260  (thrd yaear)
+EXAMPLE: CSE202301 TO  CSE202360  (fourth year)
+Computer Science and Engineering (Artificial Intelligence and Machine Learning)
+admin number 
+AIML-YEARS-01 TO  AIML-YEARS-60 
+EXAMPLE: AIML202001 TO AIML202060  (frist yaear)
+EXAMPLE: AIML202101 TO AIML202160  (send  yaear)
+EXAMPLE: AIML202201 TO AIML202260  (thrd yaear)
+EXAMPLE: AIML202301 TO AIML202360  (fourth  yaear)
+Computer Science and Engineering (Data Science)
+Computer Science and Engineering (Cyber Security)
+Electronics and Communication Engineering (ECE)
+Electrical and Electronics Engineering (EEE)
+Mechanical Engineering
+Civil Engineering 
+Postgraduate courses
+The college offers M.Tech and MBA courses for students seeking advanced degrees. 
+M.Tech specializations:
+Structural Engineering
+Power Electronics
+Embedded Systems
+Computer Science and Engineering
+Machine Design
+Advanced Manufacturing Systems
+MBA specializations:
+Master of Business Administration (MBA) 
+Diploma courses
+For students who have completed their secondary education, KNRCER provides three-year diploma programs. 
+Civil Engineering
+Mechanical Engineering
+Electrical and Electronics Engineering
+Electronics and Communication Engineering
+Computer Science and Engineering
+Artificial Intelligence and Machine Learning 
+
+3. Every course, under 60 people, boys and girls 
+4. Every day, every student's attendance is generated in MS Excel format
+example: all four years' attendance (depending on the student, which year presents the year)
+5. Every student's subject semester-wise marks are stored in MS Excel format 
+6. How to check the chairman every student's marks and attendance  how create ai agent step by step and 
+if case,i a check one student's admission number all details is shown
+
+7.One more point, add every college's adminstion number first letter example: ,KCSE202045
+8.faculty serial number example KNRCER, CSE faculty joined in 2021 → KCSEF2021-21001 to 210100 BIET, ECE faculty joined in 2020 → BECEF2020-22001 to 220100 BGIIG, ME faculty joined in 2022 → GMEF2022-23001 to 230100
+9.Every course under the add student's name alphabetically in order by boy and girl
+
+
