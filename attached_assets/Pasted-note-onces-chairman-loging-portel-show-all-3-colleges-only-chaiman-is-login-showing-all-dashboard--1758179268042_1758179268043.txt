@@ -27,7 +27,7 @@ EXAMPLE: CSE202101 TO  CSE202160  (send  yaear)
 EXAMPLE: CSE202201 TO  CSE202260  (thrd yaear)
 EXAMPLE: CSE202301 TO  CSE202360  (fourth year)
 Computer Science and Engineering (Artificial Intelligence and Machine Learning)
-admin number 
+admisation number
 AIML-YEARS-01 TO  AIML-YEARS-60 
 EXAMPLE: AIML202001 TO AIML202060  (frist yaear)
 EXAMPLE: AIML202101 TO AIML202160  (send  yaear)
