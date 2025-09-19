@@ -1,4 +1,20 @@
 {
+  "name": "edumanage",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev:server": "npm run dev -w @edumanage/server",
+    "dev:web": "npm run dev -w @edumanage/web",
+    "dev": "npm run dev:server",
+    "build": "npm run build -w @edumanage/server && npm run build -w @edumanage/web",
+    "start": "npm run start -w @edumanage/server"
+  }
+}
+
+{
   "name": "rest-express",
   "version": "1.0.0",
   "type": "module",
