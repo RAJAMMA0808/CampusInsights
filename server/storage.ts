@@ -4,6 +4,7 @@ import {
   departments,
   students,
   faculty,
+  staff,
   attendance,
   marks,
   auditLogs,
@@ -17,6 +18,8 @@ import {
   type InsertStudent,
   type Faculty,
   type InsertFaculty,
+  type Staff,
+  type InsertStaff,
   type Attendance,
   type InsertAttendance,
   type Marks,
@@ -62,6 +65,12 @@ export interface IStorage {
   createFaculty(faculty: InsertFaculty): Promise<Faculty>;
   createFacultyMembers(facultyMembers: InsertFaculty[]): Promise<Faculty[]>;
   
+  // Staff operations
+  getStaff(collegeId?: string, departmentId?: string): Promise<Staff[]>;
+  getStaffMember(id: string): Promise<Staff | undefined>;
+  createStaff(staffMember: InsertStaff): Promise<Staff>;
+  createStaffMembers(staffMembers: InsertStaff[]): Promise<Staff[]>;
+  
   // Attendance operations
   getAttendance(studentId?: string, facultyId?: string, date?: Date): Promise<Attendance[]>;
   createAttendance(attendance: InsertAttendance[]): Promise<Attendance[]>;
@@ -70,6 +79,8 @@ export interface IStorage {
     studentsAbsent: number;
     facultyPresent: number;
     facultyAbsent: number;
+    staffPresent: number;
+    staffAbsent: number;
   }>;
   
   // Marks operations
@@ -93,7 +104,12 @@ export interface IStorage {
     studentsAbsent: number;
     facultyPresent: number;
     facultyAbsent: number;
+    staffPresent: number;
+    staffAbsent: number;
     passPercentage: number;
+    totalStudents: number;
+    totalFaculty: number;
+    totalStaff: number;
   }>;
   
   // Audit operations
@@ -217,6 +233,33 @@ export class DatabaseStorage implements IStorage {
     return await db.insert(faculty).values(facultyMembers).returning();
   }
 
+  async getStaff(collegeId?: string, departmentId?: string): Promise<Staff[]> {
+    const conditions = [eq(staff.isActive, true)];
+    
+    if (collegeId) {
+      conditions.push(eq(staff.collegeId, collegeId));
+    }
+    if (departmentId) {
+      conditions.push(eq(staff.departmentId, departmentId));
+    }
+    
+    return await db.select().from(staff).where(and(...conditions));
+  }
+
+  async getStaffMember(id: string): Promise<Staff | undefined> {
+    const [staffMember] = await db.select().from(staff).where(eq(staff.id, id));
+    return staffMember;
+  }
+
+  async createStaff(staffMember: InsertStaff): Promise<Staff> {
+    const [newStaff] = await db.insert(staff).values(staffMember).returning();
+    return newStaff;
+  }
+
+  async createStaffMembers(staffMembers: InsertStaff[]): Promise<Staff[]> {
+    return await db.insert(staff).values(staffMembers).returning();
+  }
+
   async getAttendance(studentId?: string, facultyId?: string, date?: Date): Promise<Attendance[]> {
     const conditions = [];
     if (studentId) conditions.push(eq(attendance.studentId, studentId));
@@ -239,6 +282,8 @@ export class DatabaseStorage implements IStorage {
     studentsAbsent: number;
     facultyPresent: number;
     facultyAbsent: number;
+    staffPresent: number;
+    staffAbsent: number;
   }> {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -281,9 +326,29 @@ export class DatabaseStorage implements IStorage {
       .where(and(...facultyAttendanceConditions))
       .groupBy(attendance.isPresent);
 
-    const [studentAttendanceStats, facultyAttendanceStats] = await Promise.all([
+    // Get staff attendance for today
+    const staffAttendanceConditions = [sql`DATE(${attendance.date}) = DATE(${today})`];
+    if (collegeId) {
+      staffAttendanceConditions.push(eq(staff.collegeId, collegeId));
+    }
+    if (departmentId) {
+      staffAttendanceConditions.push(eq(staff.departmentId, departmentId));
+    }
+
+    const staffAttendanceQuery = db
+      .select({
+        isPresent: attendance.isPresent,
+        count: count()
+      })
+      .from(attendance)
+      .innerJoin(staff, eq(attendance.staffId, staff.id))
+      .where(and(...staffAttendanceConditions))
+      .groupBy(attendance.isPresent);
+
+    const [studentAttendanceStats, facultyAttendanceStats, staffAttendanceStats] = await Promise.all([
       studentAttendanceQuery,
-      facultyAttendanceQuery
+      facultyAttendanceQuery,
+      staffAttendanceQuery
     ]);
 
     const stats = {
@@ -291,6 +356,8 @@ export class DatabaseStorage implements IStorage {
       studentsAbsent: 0,
       facultyPresent: 0,
       facultyAbsent: 0,
+      staffPresent: 0,
+      staffAbsent: 0,
     };
 
     studentAttendanceStats.forEach(stat => {
@@ -306,6 +373,14 @@ export class DatabaseStorage implements IStorage {
         stats.facultyPresent = stat.count;
       } else {
         stats.facultyAbsent = stat.count;
+      }
+    });
+
+    staffAttendanceStats.forEach(stat => {
+      if (stat.isPresent) {
+        stats.staffPresent = stat.count;
+      } else {
+        stats.staffAbsent = stat.count;
       }
     });
 
@@ -429,14 +504,43 @@ export class DatabaseStorage implements IStorage {
     studentsAbsent: number;
     facultyPresent: number;
     facultyAbsent: number;
+    staffPresent: number;
+    staffAbsent: number;
     passPercentage: number;
+    totalStudents: number;
+    totalFaculty: number;
+    totalStaff: number;
   }> {
     const attendanceStats = await this.getAttendanceStats(collegeId);
     const passPercentage = await this.getPassPercentage(collegeId);
 
+    // Get total counts
+    const conditions = [];
+    if (collegeId) {
+      conditions.push(eq(students.collegeId, collegeId));
+    }
+
+    const [totalStudentsResult] = await db
+      .select({ count: count() })
+      .from(students)
+      .where(and(eq(students.isActive, true), ...conditions));
+
+    const [totalFacultyResult] = await db
+      .select({ count: count() })
+      .from(faculty)
+      .where(and(eq(faculty.isActive, true), ...(collegeId ? [eq(faculty.collegeId, collegeId)] : [])));
+
+    const [totalStaffResult] = await db
+      .select({ count: count() })
+      .from(staff)
+      .where(and(eq(staff.isActive, true), ...(collegeId ? [eq(staff.collegeId, collegeId)] : [])));
+
     return {
       ...attendanceStats,
       passPercentage,
+      totalStudents: totalStudentsResult.count,
+      totalFaculty: totalFacultyResult.count,
+      totalStaff: totalStaffResult.count,
     };
   }
 

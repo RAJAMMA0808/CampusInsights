@@ -4,18 +4,23 @@ import { useAuth } from "@/hooks/use-auth";
 import Sidebar from "@/components/sidebar";
 import CollegeCard from "@/components/college-card";
 import StudentSearch from "@/components/student-search";
+import StudentSearchEnhanced from "@/components/student-search-enhanced";
+import ComprehensiveDashboard from "@/components/comprehensive-dashboard";
+import DataExport from "@/components/data-export";
 import FileUpload from "@/components/file-upload";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { UserCheck, UserX, Users, SearchSlash, Trophy, Bell, Settings, Menu } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { UserCheck, UserX, Users, SearchSlash, Trophy, Bell, Settings, Menu, Download, Search, BarChart3 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 export default function Dashboard() {
   const { user } = useAuth();
   const [selectedCollege, setSelectedCollege] = useState<string>("all");
   const [showUpload, setShowUpload] = useState(false);
+  const [activeTab, setActiveTab] = useState<string>("dashboard");
 
   // Fetch dashboard KPIs
   const { data: kpis, isLoading: kpisLoading } = useQuery({
@@ -100,142 +105,165 @@ export default function Dashboard() {
         </header>
 
         {/* Dashboard Content */}
-        <main className="flex-1 p-4 lg:p-6 space-y-6">
-          {/* Global KPIs */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Students Present</p>
-                    <p className="text-2xl font-bold text-chart-2" data-testid="kpi-students-present">
-                      {kpisLoading ? "..." : kpis?.studentsPresent || 0}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      <span className="text-chart-2">↗ 2.3%</span> from yesterday
-                    </p>
-                  </div>
-                  <div className="w-12 h-12 bg-chart-2/10 rounded-lg flex items-center justify-center">
-                    <UserCheck className="h-6 w-6 text-chart-2" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Students Absent</p>
-                    <p className="text-2xl font-bold text-chart-4" data-testid="kpi-students-absent">
-                      {kpisLoading ? "..." : kpis?.studentsAbsent || 0}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      <span className="text-chart-4">↘ 1.1%</span> from yesterday
-                    </p>
-                  </div>
-                  <div className="w-12 h-12 bg-chart-4/10 rounded-lg flex items-center justify-center">
-                    <UserX className="h-6 w-6 text-chart-4" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Faculty Present</p>
-                    <p className="text-2xl font-bold text-chart-2" data-testid="kpi-faculty-present">
-                      {kpisLoading ? "..." : kpis?.facultyPresent || 0}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      <span className="text-chart-2">↗ 0.5%</span> from yesterday
-                    </p>
-                  </div>
-                  <div className="w-12 h-12 bg-chart-2/10 rounded-lg flex items-center justify-center">
-                    <Users className="h-6 w-6 text-chart-2" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Faculty Absent</p>
-                    <p className="text-2xl font-bold text-chart-4" data-testid="kpi-faculty-absent">
-                      {kpisLoading ? "..." : kpis?.facultyAbsent || 0}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      <span className="text-chart-2">↘ 0.2%</span> from yesterday
-                    </p>
-                  </div>
-                  <div className="w-12 h-12 bg-chart-4/10 rounded-lg flex items-center justify-center">
-                    <SearchSlash className="h-6 w-6 text-chart-4" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Pass Percentage</p>
-                    <p className="text-2xl font-bold text-chart-1" data-testid="kpi-pass-percentage">
-                      {kpisLoading ? "..." : `${kpis?.passPercentage?.toFixed(1) || 0}%`}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      <span className="text-chart-2">↗ 1.8%</span> from last semester
-                    </p>
-                  </div>
-                  <div className="w-12 h-12 bg-chart-1/10 rounded-lg flex items-center justify-center">
-                    <Trophy className="h-6 w-6 text-chart-1" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+        <main className="flex-1 p-4 lg:p-6">
+          {isChairman ? (
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-4">
+                <TabsTrigger value="dashboard" className="flex items-center gap-2">
+                  <BarChart3 className="h-4 w-4" />
+                  Dashboard
+                </TabsTrigger>
+                <TabsTrigger value="search" className="flex items-center gap-2">
+                  <Search className="h-4 w-4" />
+                  Student Search
+                </TabsTrigger>
+                <TabsTrigger value="export" className="flex items-center gap-2">
+                  <Download className="h-4 w-4" />
+                  Data Export
+                </TabsTrigger>
+                <TabsTrigger value="upload" className="flex items-center gap-2">
+                  <Download className="h-4 w-4" />
+                  Upload Data
+                </TabsTrigger>
+              </TabsList>
 
-          {/* College Cards - Only for Chairman */}
-          {isChairman && selectedCollege === "all" && (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {colleges?.map((college: any) => (
-                <CollegeCard key={college.id} college={college} />
-              ))}
+              <TabsContent value="dashboard" className="mt-6">
+                <ComprehensiveDashboard />
+              </TabsContent>
+
+              <TabsContent value="search" className="mt-6">
+                <StudentSearchEnhanced />
+              </TabsContent>
+
+              <TabsContent value="export" className="mt-6">
+                <DataExport />
+              </TabsContent>
+
+              <TabsContent value="upload" className="mt-6">
+                <div className="space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Upload Data Files</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <FileUpload onClose={() => {}} />
+                    </CardContent>
+                  </Card>
+                </div>
+              </TabsContent>
+            </Tabs>
+          ) : (
+            // Non-chairman users see limited dashboard
+            <div className="space-y-6">
+              {/* Limited KPIs for HOD/Staff */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Students Present</p>
+                        <p className="text-2xl font-bold text-chart-2" data-testid="kpi-students-present">
+                          {kpisLoading ? "..." : kpis?.studentsPresent || 0}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          <span className="text-chart-2">↗ 2.3%</span> from yesterday
+                        </p>
+                      </div>
+                      <div className="w-12 h-12 bg-chart-2/10 rounded-lg flex items-center justify-center">
+                        <UserCheck className="h-6 w-6 text-chart-2" />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Students Absent</p>
+                        <p className="text-2xl font-bold text-chart-4" data-testid="kpi-students-absent">
+                          {kpisLoading ? "..." : kpis?.studentsAbsent || 0}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          <span className="text-chart-4">↘ 1.1%</span> from yesterday
+                        </p>
+                      </div>
+                      <div className="w-12 h-12 bg-chart-4/10 rounded-lg flex items-center justify-center">
+                        <UserX className="h-6 w-6 text-chart-4" />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Faculty Present</p>
+                        <p className="text-2xl font-bold text-chart-2" data-testid="kpi-faculty-present">
+                          {kpisLoading ? "..." : kpis?.facultyPresent || 0}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          <span className="text-chart-2">↗ 0.5%</span> from yesterday
+                        </p>
+                      </div>
+                      <div className="w-12 h-12 bg-chart-2/10 rounded-lg flex items-center justify-center">
+                        <Users className="h-6 w-6 text-chart-2" />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Pass Percentage</p>
+                        <p className="text-2xl font-bold text-chart-1" data-testid="kpi-pass-percentage">
+                          {kpisLoading ? "..." : `${kpis?.passPercentage?.toFixed(1) || 0}%`}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          <span className="text-chart-2">↗ 1.8%</span> from last semester
+                        </p>
+                      </div>
+                      <div className="w-12 h-12 bg-chart-1/10 rounded-lg flex items-center justify-center">
+                        <Trophy className="h-6 w-6 text-chart-1" />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Student Search for HOD/Staff */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <StudentSearch />
+                
+                {/* Quick Actions */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Quick Actions</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <Button 
+                      className="w-full justify-start" 
+                      variant="outline"
+                      onClick={() => setShowUpload(true)}
+                      data-testid="button-upload-data"
+                    >
+                      Upload Data Files
+                    </Button>
+                    <div className="text-sm text-muted-foreground">
+                      Upload attendance and marks data from Excel files
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* File Upload Modal */}
+              {showUpload && (
+                <FileUpload onClose={() => setShowUpload(false)} />
+              )}
             </div>
-          )}
-
-          {/* Student Search and File Upload */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <StudentSearch />
-            
-            {/* Quick Actions */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Quick Actions</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <Button 
-                  className="w-full justify-start" 
-                  variant="outline"
-                  onClick={() => setShowUpload(true)}
-                  data-testid="button-upload-data"
-                >
-                  Upload Data Files
-                </Button>
-                <div className="text-sm text-muted-foreground">
-                  Upload attendance and marks data from Excel files
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* File Upload Modal */}
-          {showUpload && (
-            <FileUpload onClose={() => setShowUpload(false)} />
           )}
         </main>
       </div>

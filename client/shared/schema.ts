@@ -100,32 +100,13 @@ export const faculty = pgTable("faculty", {
   createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`),
 });
 
-// Staff table
-export const staff = pgTable("staff", {
-  id: varchar("id").primaryKey().default(sql`lower(hex(randomblob(16)))`),
-  staffNumber: text("staff_number").notNull().unique(),
-  firstName: text("first_name").notNull(),
-  lastName: text("last_name").notNull(),
-  email: text("email"),
-  phone: text("phone"),
-  collegeId: varchar("college_id").notNull(),
-  departmentId: varchar("department_id").notNull(),
-  designation: text("designation"), // Admin, Accountant, Librarian, etc.
-  joinedYear: integer("joined_year").notNull(),
-  isActive: boolean("is_active").default(true),
-  createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`),
-});
-
 // Attendance table
 export const attendance = pgTable("attendance", {
   id: varchar("id").primaryKey().default(sql`lower(hex(randomblob(16)))`),
   studentId: varchar("student_id"),
   facultyId: varchar("faculty_id"),
-  staffId: varchar("staff_id"),
   date: timestamp("date").notNull(),
   isPresent: boolean("is_present").notNull(),
-  morningAttendance: text("morning_attendance"), // Present, Absent, Off-day
-  eveningAttendance: text("evening_attendance"), // Present, Absent, Off-day
   remarks: text("remarks"),
   uploadedBy: varchar("uploaded_by").notNull(),
   createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`),
@@ -136,10 +117,7 @@ export const marks = pgTable("marks", {
   id: varchar("id").primaryKey().default(sql`lower(hex(randomblob(16)))`),
   studentId: varchar("student_id").notNull(),
   subject: text("subject").notNull(),
-  subjectCode: text("subject_code"),
-  subjectName: text("subject_name"),
   semester: integer("semester").notNull(),
-  examType: text("exam_type"), // Mid1, Mid2, Final, etc.
   marksObtained: decimal("marks_obtained", { precision: 5, scale: 2 }),
   totalMarks: decimal("total_marks", { precision: 5, scale: 2 }),
   grade: text("grade"),
@@ -177,7 +155,6 @@ export const collegesRelations = relations(colleges, ({ many }) => ({
   departments: many(departments),
   students: many(students),
   faculty: many(faculty),
-  staff: many(staff),
 }));
 
 export const departmentsRelations = relations(departments, ({ one, many }) => ({
@@ -191,7 +168,6 @@ export const departmentsRelations = relations(departments, ({ one, many }) => ({
   }),
   students: many(students),
   faculty: many(faculty),
-  staff: many(staff),
 }));
 
 export const studentsRelations = relations(students, ({ one, many }) => ({
@@ -219,18 +195,6 @@ export const facultyRelations = relations(faculty, ({ one, many }) => ({
   attendance: many(attendance),
 }));
 
-export const staffRelations = relations(staff, ({ one, many }) => ({
-  college: one(colleges, {
-    fields: [staff.collegeId],
-    references: [colleges.id],
-  }),
-  department: one(departments, {
-    fields: [staff.departmentId],
-    references: [departments.id],
-  }),
-  attendance: many(attendance),
-}));
-
 export const attendanceRelations = relations(attendance, ({ one }) => ({
   student: one(students, {
     fields: [attendance.studentId],
@@ -239,10 +203,6 @@ export const attendanceRelations = relations(attendance, ({ one }) => ({
   faculty: one(faculty, {
     fields: [attendance.facultyId],
     references: [faculty.id],
-  }),
-  staff: one(staff, {
-    fields: [attendance.staffId],
-    references: [staff.id],
   }),
   uploadedByUser: one(users, {
     fields: [attendance.uploadedBy],
@@ -295,11 +255,6 @@ export const insertFacultySchema = createInsertSchema(faculty).omit({
   createdAt: true,
 });
 
-export const insertStaffSchema = createInsertSchema(staff).omit({
-  id: true,
-  createdAt: true,
-});
-
 export const insertAttendanceSchema = createInsertSchema(attendance).omit({
   id: true,
   createdAt: true,
@@ -326,8 +281,6 @@ export type Student = typeof students.$inferSelect;
 export type InsertStudent = z.infer<typeof insertStudentSchema>;
 export type Faculty = typeof faculty.$inferSelect;
 export type InsertFaculty = z.infer<typeof insertFacultySchema>;
-export type Staff = typeof staff.$inferSelect;
-export type InsertStaff = z.infer<typeof insertStaffSchema>;
 export type Attendance = typeof attendance.$inferSelect;
 export type InsertAttendance = z.infer<typeof insertAttendanceSchema>;
 export type Marks = typeof marks.$inferSelect;

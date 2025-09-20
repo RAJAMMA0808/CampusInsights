@@ -6,6 +6,7 @@ import multer from "multer";
 import * as XLSX from "xlsx";
 import { insertStudentSchema, insertFacultySchema, insertAttendanceSchema, insertMarksSchema } from "@shared/schema";
 import { z } from "zod";
+import { generateZipExport, generateTemplateZip } from "./zip-generator";
 
 // Configure multer for file uploads
 const upload = multer({ 
@@ -260,6 +261,219 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching audit logs:", error);
       res.status(500).json({ message: "Failed to fetch audit logs" });
+    }
+  });
+
+  // Data export endpoint
+  app.post("/api/export/data", requireAuth, requireRole(['chairman']), async (req: any, res: Response) => {
+    try {
+      const { dataTypes, colleges, dateRange, format, includeCharts } = req.body;
+
+      if (!dataTypes || dataTypes.length === 0) {
+        return res.status(400).json({ message: "No data types selected" });
+      }
+
+      // Generate Excel file with multiple sheets
+      const workbook = XLSX.utils.book_new();
+
+      // Add sheets based on selected data types
+      for (const dataType of dataTypes) {
+        let sheetData = [];
+        let sheetName = "";
+
+        switch (dataType) {
+          case "students":
+            sheetName = "Students";
+            const students = await storage.getStudents(
+              colleges.length > 0 ? colleges[0] : undefined
+            );
+            sheetData = students.map(student => ({
+              "Admission Number": student.admissionNumber,
+              "First Name": student.firstName,
+              "Last Name": student.lastName,
+              "Email": student.email || "",
+              "Phone": student.phone || "",
+              "Year": student.year,
+              "Semester": student.semester,
+              "Gender": student.gender,
+              "College ID": student.collegeId,
+              "Department ID": student.departmentId,
+              "Created At": student.createdAt
+            }));
+            break;
+
+          case "attendance":
+            sheetName = "Attendance";
+            const attendance = await storage.getAttendance();
+            sheetData = attendance.map(record => ({
+              "Date": record.date,
+              "Student ID": record.studentId || "",
+              "Faculty ID": record.facultyId || "",
+              "Staff ID": record.staffId || "",
+              "Is Present": record.isPresent ? "Yes" : "No",
+              "Morning Attendance": record.morningAttendance || "",
+              "Evening Attendance": record.eveningAttendance || "",
+              "Remarks": record.remarks || "",
+              "Uploaded By": record.uploadedBy,
+              "Created At": record.createdAt
+            }));
+            break;
+
+          case "marks":
+            sheetName = "Marks";
+            const marks = await storage.getMarks();
+            sheetData = marks.map(mark => ({
+              "Student ID": mark.studentId,
+              "Subject": mark.subject,
+              "Subject Code": mark.subjectCode || "",
+              "Subject Name": mark.subjectName || "",
+              "Semester": mark.semester,
+              "Exam Type": mark.examType || "",
+              "Marks Obtained": mark.marksObtained,
+              "Total Marks": mark.totalMarks,
+              "Grade": mark.grade || "",
+              "Is Passed": mark.isPassed ? "Yes" : "No",
+              "Uploaded By": mark.uploadedBy,
+              "Created At": mark.createdAt
+            }));
+            break;
+
+          case "faculty":
+            sheetName = "Faculty";
+            const faculty = await storage.getFaculty(
+              colleges.length > 0 ? colleges[0] : undefined
+            );
+            sheetData = faculty.map(member => ({
+              "Faculty Number": member.facultyNumber,
+              "First Name": member.firstName,
+              "Last Name": member.lastName,
+              "Email": member.email || "",
+              "Phone": member.phone || "",
+              "Designation": member.designation || "",
+              "Joined Year": member.joinedYear,
+              "College ID": member.collegeId,
+              "Department ID": member.departmentId,
+              "Created At": member.createdAt
+            }));
+            break;
+
+          case "staff":
+            sheetName = "Staff";
+            const staff = await storage.getStaff(
+              colleges.length > 0 ? colleges[0] : undefined
+            );
+            sheetData = staff.map(member => ({
+              "Staff Number": member.staffNumber,
+              "First Name": member.firstName,
+              "Last Name": member.lastName,
+              "Email": member.email || "",
+              "Phone": member.phone || "",
+              "Designation": member.designation || "",
+              "Joined Year": member.joinedYear,
+              "College ID": member.collegeId,
+              "Department ID": member.departmentId,
+              "Created At": member.createdAt
+            }));
+            break;
+
+          case "reports":
+            sheetName = "Analytics";
+            const kpis = await storage.getDashboardKPIs(
+              colleges.length > 0 ? colleges[0] : undefined
+            );
+            sheetData = [{
+              "Students Present": kpis.studentsPresent,
+              "Students Absent": kpis.studentsAbsent,
+              "Faculty Present": kpis.facultyPresent,
+              "Faculty Absent": kpis.facultyAbsent,
+              "Staff Present": kpis.staffPresent,
+              "Staff Absent": kpis.staffAbsent,
+              "Pass Percentage": kpis.passPercentage,
+              "Total Students": kpis.totalStudents,
+              "Total Faculty": kpis.totalFaculty,
+              "Total Staff": kpis.totalStaff
+            }];
+            break;
+        }
+
+        if (sheetData.length > 0) {
+          const worksheet = XLSX.utils.json_to_sheet(sheetData);
+          XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+        }
+      }
+
+      // Generate buffer
+      const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+
+      // Set headers for file download
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      res.setHeader('Content-Disposition', `attachment; filename="campus-data-export-${new Date().toISOString().split('T')[0]}.xlsx"`);
+      res.setHeader('Content-Length', buffer.length);
+
+      // Log the export action
+      await logAudit(req, 'data_export', 'export', undefined, {
+        dataTypes,
+        colleges,
+        dateRange,
+        format,
+        recordCount: Object.values(workbook.Sheets).length
+      });
+
+      res.send(buffer);
+    } catch (error) {
+      console.error("Error exporting data:", error);
+      res.status(500).json({ message: "Failed to export data" });
+    }
+  });
+
+  // Template download endpoint
+  app.get("/api/templates/download", requireAuth, async (req: any, res: Response) => {
+    try {
+      const zipBuffer = await generateTemplateZip();
+      
+      res.setHeader('Content-Type', 'application/zip');
+      res.setHeader('Content-Disposition', 'attachment; filename="campus-templates.zip"');
+      res.setHeader('Content-Length', zipBuffer.length);
+      
+      res.send(zipBuffer);
+    } catch (error) {
+      console.error("Error generating templates:", error);
+      res.status(500).json({ message: "Failed to generate templates" });
+    }
+  });
+
+  // ZIP export endpoint
+  app.post("/api/export/zip", requireAuth, requireRole(['chairman']), async (req: any, res: Response) => {
+    try {
+      const { dataTypes, colleges, dateRange, includeCharts } = req.body;
+
+      if (!dataTypes || dataTypes.length === 0) {
+        return res.status(400).json({ message: "No data types selected" });
+      }
+
+      const zipBuffer = await generateZipExport({
+        dataTypes,
+        colleges,
+        dateRange,
+        includeCharts
+      });
+
+      res.setHeader('Content-Type', 'application/zip');
+      res.setHeader('Content-Disposition', `attachment; filename="campus-data-export-${new Date().toISOString().split('T')[0]}.zip"`);
+      res.setHeader('Content-Length', zipBuffer.length);
+
+      // Log the export action
+      await logAudit(req, 'zip_export', 'export', undefined, {
+        dataTypes,
+        colleges,
+        dateRange,
+        includeCharts
+      });
+
+      res.send(zipBuffer);
+    } catch (error) {
+      console.error("Error generating ZIP export:", error);
+      res.status(500).json({ message: "Failed to generate ZIP export" });
     }
   });
 

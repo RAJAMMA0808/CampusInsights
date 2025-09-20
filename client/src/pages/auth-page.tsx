@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { insertUserSchema } from "@shared/schema";
+import { insertUserSchema } from "../../shared/schema";
 import { z } from "zod";
 import { Redirect } from "wouter";
 import { GraduationCap, Building2, Users, BarChart3 } from "lucide-react";
@@ -42,6 +42,8 @@ export default function AuthPage() {
       firstName: "",
       lastName: "",
       email: "",
+      collegeId: "",
+      departmentId: "",
     },
   });
 
@@ -241,6 +243,34 @@ export default function AuthPage() {
                     {registerForm.formState.errors.role && (
                       <p className="text-sm text-destructive mt-1">
                         {registerForm.formState.errors.role.message}
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <Label htmlFor="collegeId">College ID</Label>
+                    <Input
+                      id="collegeId"
+                      data-testid="input-collegeId"
+                      {...registerForm.register("collegeId")}
+                      placeholder="Enter your college ID"
+                    />
+                    {registerForm.formState.errors.collegeId && (
+                      <p className="text-sm text-destructive mt-1">
+                        {registerForm.formState.errors.collegeId.message}
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <Label htmlFor="departmentId">Department ID</Label>
+                    <Input
+                      id="departmentId"
+                      data-testid="input-departmentId"
+                      {...registerForm.register("departmentId")}
+                      placeholder="Enter your department ID"
+                    />
+                    {registerForm.formState.errors.departmentId && (
+                      <p className="text-sm text-destructive mt-1">
+                        {registerForm.formState.errors.departmentId.message}
                       </p>
                     )}
                   </div>

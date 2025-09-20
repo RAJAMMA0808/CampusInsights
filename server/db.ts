@@ -1,15 +1,26 @@
-import { Pool, neonConfig } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-serverless';
-import ws from "ws";
+import { drizzle } from 'drizzle-orm/libsql';
+import { createClient } from '@libsql/client';
 import * as schema from "@shared/schema";
 
-neonConfig.webSocketConstructor = ws;
+// Use local SQLite database for development
+const databaseUrl = process.env.DATABASE_URL || 'file:./campusinsights.db';
 
-if (!process.env.DATABASE_URL) {
-  throw new Error(
-    "DATABASE_URL must be set. Did you forget to provision a database?",
-  );
+let db;
+
+if (databaseUrl.startsWith('file:')) {
+  // Local SQLite configuration
+  const client = createClient({
+    url: databaseUrl
+  });
+  db = drizzle(client, { schema });
+} else {
+  // PostgreSQL configuration (for production)
+  const { Pool, neonConfig } = await import('@neondatabase/serverless');
+  const ws = await import("ws");
+  
+  neonConfig.webSocketConstructor = ws.default;
+  const pool = new Pool({ connectionString: databaseUrl });
+  db = drizzle({ client: pool, schema });
 }
 
-export const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-export const db = drizzle({ client: pool, schema });
+export { db };

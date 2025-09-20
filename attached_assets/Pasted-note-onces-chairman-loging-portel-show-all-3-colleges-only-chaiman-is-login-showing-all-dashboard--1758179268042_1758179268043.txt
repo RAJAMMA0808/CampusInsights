@@ -1,23 +1,34 @@
-note:onces chairman loging portel show all 3 colleges 
-only chaiman is login showing all dashboard  all 3 cooleges and at active attendance 
-rmening person don`t show dashboard
+note: onces chairman loging portel show all 3 colleges 
+only chairman is login showing all dashboard  all 3 colleges and at active attendance 
+remining person don`t show dashboard
 
-Role based access: Chairman (full read), HODs (dept-limited), staff (limited).
-this is select all colleges wise
+Role based access: Chairman (full read), HODs our college access (dept-limited), HODs our college access staff (limited).
+this is select all colleges wise attendance attendance
 (i) all 3 colleges total student Present show one dashboard
 (ii) all 3 colleges total student Absent show one dashboard
-(iii) all 3 colleges total faculty and Staff  present show one dashboard
-(iv) all 3 colleges total faculty and Staff Absent show one dashboard
-(v) all 3 colleges total student pass percentage dashboard 
-same select singlewise  colleges wise
-(i) colleges wise  colleges total student present show one dashboard
-(ii) colleges wise  colleges total student Absent show one dashboard
-(iii colleges wise  colleges total faculty and Staff  present show one dashboard
-(iv)  colleges wise  colleges total faculty and Staff  Absent show one dashboard
-(v)  colleges wise   colleges total student pass percentage dashboard
+(iii) all 3 colleges total faculty  present show one dashboard
+(iv) all 3 colleges total faculty Absent show one dashboard
+(v) all 3 colleges total Staff Present show one dashboard
+(v) all 3 colleges total Staff Absent show one dashboard
+(vi) all 3 colleges total number of student dashboard 
+(ix) all 3 colleges total number of student pass marks percentage dashboard 
+(viii) all 3 colleges total number of student pass fail mark dashboard 
 
-I am an Engineering College chairman. I need an AI agent how to create
-1. I have 3 engineering colleges (i). Bgiig institute of engineering and technology  (ii).brilliant institute of engineering and technology   (iii).Kasireddy Narayanreddy College of Engineering and Research
+colleges wise dashboard
+(i) colleges wise total student Present show one dashboard
+(ii) colleges wise total student Absent show one dashboard
+(iii) colleges wises total faculty  present show one dashboard
+(iv) colleges wise total faculty Absent show one dashboard
+(v) colleges wise total Staff Present show one dashboard
+(v) colleges wise total Staff Absent show one dashboard
+(vi) colleges wise total number of student dashboard 
+(ix) colleges wise total number of student pass marks percentage dashboard 
+(viii) colleges wise  total number of student pass fail mark dashboard 
+
+I am an Engineering College chairman. 
+1. I have 3 engineering colleges (i).Big institute of engineering and technology  
+                                (ii).brilliant institute of engineering and technology   
+                                (iii).Kasireddy Narayanreddy College of Engineering and Research
 2. Every college 
 Undergraduate B.Tech courses
 KNRCER offers various specializations for its four-year B.Tech program, with admissions generally based on the TS EAMCET entrance exam. 
@@ -39,8 +50,81 @@ Electronics and Communication Engineering (ECE)
 Electrical and Electronics Engineering (EEE)
 Mechanical Engineering
 Civil Engineering 
+
+3. Every course, under 60 people, boys and girls 
+4. Every day, every student's attendance is generated in MS Excel format
+example: all four years' attendance identified every student ms excel format  
+5. Every student's subject semester-wise marks are stored in MS Excel format 
+6. How to check the chairman every student's marks and attendance  
+chairman if case a check one student's admission number all details is shown
+
 Postgraduate courses
-The college offers M.Tech and MBA courses for students seeking advanced degrees. 
+The college offers M.Tech and MBA courses for students seeking advanced degrees.
+Civil Engineering
+Mechanical Engineering
+Electrical and Electronics Engineering
+Electronics and Communication Engineering
+Computer Science and Engineering
+Artificial Intelligence and Machine Learning 
+
+
+3. Every course, under 60 people, boys and girls 
+4. Every day, every student's attendance is generated in MS Excel format
+example: all four years' attendance identified every student ms excel format  
+5. Every student's subject semester-wise marks are stored in MS Excel format 
+6. How to check the chairman every student's marks and attendance  
+chairman if case a check one student's admission number all details is shown
+
+7.One more point, add every college's admission number first letter example: ,KCSE202045
+8.faculty serial number example KNRCER, CSE faculty joined in 2021 → KCSEF2021-21001 to 210100 BIET, ECE faculty joined in 2020 → BECEF2020-22001 to 220100 BGIIG, ME faculty joined in 2022 → GMEF2022-23001 to 230100
+9.Every course under the add student's name alphabetically in order by boy and girl
+
+
+
+ms excel format
+marks_template
+CollegeCode	ProgramCode	AdmissionNumber	StudentName	Gender	Semester	SubjectCode	SubjectName	ExamType	MarksObtained	MaxMarks
+
+
+KNRCER	CSE	KCSE202001	Aarav Kapoor	M	CSE101	Maths	Mid1	28	40	100
+KNRCER	CSE	KCSE202002	Bharat Rani	f	CSE101	Maths	Mid1	28	40	100
+KNRCER	CSE	KCSE202003	Chirag Kapoor	M	CSE101	Maths	Mid1	28	40	100
+KNRCER	CSE	KCSE202004	Deepak Dutta	M	CSE101	Maths	Mid1	28	40	100
+KNRCER	CSE	KCSE202005	Dinesh Joshi	M	CSE101	Maths	Mid1	28	40	100
+KNRCER	CSE	KCSE202006	Eeshan Reddy	M	CSE101	Maths	Mid1	28	40	100
+KNRCER	CSE	KCSE202007	Firoz Pillai	M	CSE101	Maths	Mid1	28	40	100
+KNRCER	CSE	KCSE202008	Firoz Sarin	M	CSE101	Maths	Mid1	28	40	100
+KNRCER	CSE	KCSE202009	Gautam Jain	M	CSE101	Maths	Mid1	28	40	100
+
+attendance_template_students
+CollegeCode	ProgramCode	AdmissionNumber	StudentName	Gender   Semester        Date wise         morning attendance  evening attendance      Present
+KNRCER	               CSE	KCSE202001	Aarav Kapoor  	   m          1	       2025-09-15           Present            Present                Present
+KNRCER	               CSE	KCSE202001	Bharat Rani  	   f          1	       2025-09-15           Present            attendance              off-day
+
+ms excel format
+attendance_template_faculty
+CollegeCode	ProgramCode	FacultyID	              FacultyName	 Gender  Date wise         morning attendance  evening attendance      Present
+
+BIG	               CSE	GCSEF2020-23001	               Fariha Gopal	 F         2025-09-15           Present            Present                 Present
+BIG	               CSE	GCSEF2020-23002	               Sanjay Thota	 M         2025-09-15           Present            attendance              off-day
+BIG	               CSE	GCSEF2020-23003	               Usha Okafor	 F         2025-09-15           Present            Present                 Present
+BIG	               CSE	GCSEF2020-23004	              Deepak Acharya	 M         2025-09-15           Present           attendance               off-day
+
+
+
+
+ms excel format
+attendance_template_Staff
+CollegeCode	ProgramCode	FacultyID	              FacultyName	 Gender  Date wise         morning attendance  evening attendance      Present
+
+BIET	               CSE	GCSEF2020-23001	               mahesh	         F         2025-09-15           Present            Present                 Present
+BIET	               CSE	GCSEF2020-23002	               Thota	         M         2025-09-15           Present            attendance              off-day
+BIET	               CSE	GCSEF2020-23003	               Usha 	         F         2025-09-15           Present            Present                 Present
+BIET	               CSE	GCSEF2020-23004	              Acharya	         M         2025-09-15           Present           attendance               off-day
+
+
+
+ 
 M.Tech specializations:
 Structural Engineering
 Power Electronics
@@ -59,15 +143,6 @@ Electronics and Communication Engineering
 Computer Science and Engineering
 Artificial Intelligence and Machine Learning 
 
-3. Every course, under 60 people, boys and girls 
-4. Every day, every student's attendance is generated in MS Excel format
-example: all four years' attendance (depending on the student, which year presents the year)
-5. Every student's subject semester-wise marks are stored in MS Excel format 
-6. How to check the chairman every student's marks and attendance  how create ai agent step by step and 
-if case,i a check one student's admission number all details is shown
 
-7.One more point, add every college's adminstion number first letter example: ,KCSE202045
-8.faculty serial number example KNRCER, CSE faculty joined in 2021 → KCSEF2021-21001 to 210100 BIET, ECE faculty joined in 2020 → BECEF2020-22001 to 220100 BGIIG, ME faculty joined in 2022 → GMEF2022-23001 to 230100
-9.Every course under the add student's name alphabetically in order by boy and girl
 
 

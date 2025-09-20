@@ -1,0 +1,22 @@
+{
+	"folders": [
+		{
+			"path": "server"
+		},
+		{
+			"path": "shared"
+		},
+		{
+			"path": ".git"
+		},
+		{
+			"path": ".local"
+		},
+		{
+			"path": "attached_assets"
+		},
+		{
+			"path": "client"
+		}
+	]
+}
